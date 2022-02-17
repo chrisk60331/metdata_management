@@ -46,7 +46,9 @@ class DatabaseHandler:
             with self._db_path.open("r") as db:
                 try:
                     data = db.read()
-                    return DBResponse(json.loads('{}' if data == '[]' else data), SUCCESS)
+                    return DBResponse(
+                        json.loads("{}" if data == "[]" else data), SUCCESS
+                    )
                 except json.JSONDecodeError:  # Catch wrong JSON format
                     return DBResponse({}, JSON_ERROR)
         except OSError:  # Catch file IO problems

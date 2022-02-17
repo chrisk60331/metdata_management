@@ -186,9 +186,7 @@ def remove(
         except IndexError:
             typer.secho("Invalid metadata_ID", fg=typer.colors.RED)
             raise typer.Exit(1)
-        delete = typer.confirm(
-            f"Delete metadata # {metadata_title}?"
-        )
+        delete = typer.confirm(f"Delete metadata # {metadata_title}?")
         if delete:
             _remove()
         else:
