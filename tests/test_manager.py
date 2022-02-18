@@ -11,7 +11,7 @@ test_data3 = CurrentMetadata(
     metadata={
         "account03": {
             "Value": "10.0.1.0/24",
-            "Comment": "auto-assigned IP",
+            "Comment": "auto-reserved IP",
             "AssignedBy": "bap",
             "AssignedDateUTC": ASSIGNED_DATE,
             "inactive": False,
@@ -23,7 +23,7 @@ test_data4 = CurrentMetadata(
     metadata={
         "account04": {
             "Value": "10.0.2.0/24",
-            "Comment": "auto-assigned IP",
+            "Comment": "auto-reserved IP",
             "AssignedBy": "bap",
             "AssignedDateUTC": ASSIGNED_DATE,
             "inactive": False,
@@ -58,12 +58,12 @@ def test_add(mock_json_file, metadata_title, metadata_value, comment, expected):
     ],
 )
 @freeze_time(ASSIGNED_DATE, tz_offset=-4)
-def test_assign_ipv4_network(mock_json_file, metadata_title, expected):
+def test_reserve_ipv4_network(mock_json_file, metadata_title, expected):
     metadata_management = Metadata(mock_json_file)
     with patch("metadata_management.manager.CURRENT_USER", "bap"):
-        actual = metadata_management.assign_ipv4_network(metadata_title, 24)
+        actual = metadata_management.reserve_ipv4_network(metadata_title, 24)
         assert actual == expected
         read = metadata_management._db_handler.read_metadata()
         assert len(read.metadata) == 2
-        actual = metadata_management.assign_ipv4_network("account04", 24)
+        actual = metadata_management.reserve_ipv4_network("account04", 24)
         assert actual == test_data4

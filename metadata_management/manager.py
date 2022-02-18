@@ -9,12 +9,14 @@ from metadata_management import DB_READ_ERROR, ID_ERROR
 from metadata_management.database import DatabaseHandler
 from typing import Any, Dict, NamedTuple
 
-LAST_ASSIGNED_NETWORK = "last_assigned_network"
+LAST_RESERVED_NETWORK = "last_reserved_network"
 CURRENT_USER = pwd.getpwuid(os.getuid())[0]
-DEFAULT_BACKEND_NETWORK = "10.0.0.0/24"
+DEFAULT_BACKEND_IPV4_NETWORK = "10.0.0.0/24"
+SUPPORTED_MASK_BITS = [24]
 
 
 class CurrentMetadata(NamedTuple):
+    """Object representing the row currently in memory."""
     metadata: Dict[str, Any]
     error: int
 
@@ -24,6 +26,7 @@ class UnsupportedMaskBits(Exception):
 
 
 class Metadata:
+    """An object representing a piece of information."""
     def __init__(self, db_path: Path) -> None:
         self._db_handler = DatabaseHandler(db_path)
 
@@ -50,26 +53,27 @@ class Metadata:
         write = self._db_handler.write_metadata(read.metadata)
         return CurrentMetadata({metadata_title: metadata}, write.error)
 
-    def assign_ipv4_network(self, host: str, mask_bits: int = 24) -> CurrentMetadata:
+    def reserve_ipv4_network(self, host: str, mask_bits: int = 24) -> CurrentMetadata:
+        """Create an IP network reservation and store it in the database."""
         metadata = self.get_metadata()
-        last_assigned_network = ip_network(
-            metadata.get(LAST_ASSIGNED_NETWORK, {}).get(
-                "Value", DEFAULT_BACKEND_NETWORK
+        last_reserved_network = ip_network(
+            metadata.get(LAST_RESERVED_NETWORK, {}).get(
+                "Value", DEFAULT_BACKEND_IPV4_NETWORK
             )
         )
-        if not mask_bits == 24:
+        if mask_bits not in SUPPORTED_MASK_BITS:
             raise UnsupportedMaskBits
-        last_network_super = last_assigned_network.supernet(prefixlen_diff=8)
+        last_network_super = last_reserved_network.supernet(prefixlen_diff=8)
         available_networks = last_network_super.subnets(prefixlen_diff=8)
         next_network = str(
             [
                 network
                 for network in available_networks
-                if network > last_assigned_network
+                if network > last_reserved_network
             ][0]
         )
-        self.add(LAST_ASSIGNED_NETWORK, next_network, "auto-assigned IP")
-        add_host_result = self.add(host, next_network, "auto-assigned IP")
+        self.add(LAST_RESERVED_NETWORK, next_network, "auto-reserved IP")
+        add_host_result = self.add(host, next_network, "auto-reserved IP")
         return add_host_result
 
     def set_inactive(self, metadata_title: str) -> CurrentMetadata:

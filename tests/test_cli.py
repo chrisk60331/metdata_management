@@ -79,8 +79,8 @@ def test_cli_add(mock_db):
     assert result.exit_code == 0, result
 
 
-def test_cli_assign_ipv4_network(mock_db):
-    result = runner.invoke(cli.app, ["assign-ipv4-network", "account01", "24"])
+def test_cli_reserve_ipv4_network(mock_db):
+    result = runner.invoke(cli.app, ["reserve-ipv4-network", "account01", "24"])
     assert result.exit_code == 0, result
 
 

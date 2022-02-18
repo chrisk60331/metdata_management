@@ -86,14 +86,14 @@ def add(
 
 
 @app.command()
-def assign_ipv4_network(
+def reserve_ipv4_network(
     host: str = typer.Argument(...),
     network_mask_bits: int = typer.Argument(...),
 ) -> None:
     """Allocate a new IPv4 range."""
     manager = get_manager()
-    metadata, error = manager.assign_ipv4_network(
-        host + "#ipv4address", network_mask_bits
+    metadata, error = manager.reserve_ipv4_network(
+        host, network_mask_bits
     )
     if error:
         typer.secho(
@@ -120,7 +120,7 @@ def list_all() -> None:
         )
         raise typer.Exit()
     typer.secho("\nmetadata list:\n", fg=typer.colors.BLUE, bold=True)
-    columns = ("Value", "Content", "AssignedBy", "AssignedDateUTC", "inactive")
+    columns = ("Value", "Content", "ReservedBy", "ReservedDateUTC", "inactive")
     headers = " ".join(columns)
     typer.secho(headers, fg=typer.colors.BLUE, bold=True)
     typer.secho("-" * len(headers), fg=typer.colors.BLUE)
@@ -161,11 +161,11 @@ def remove(
         help="Force deletion without confirmation.",
     ),
 ) -> None:
-    """Remove a metadata using its metadata_id."""
+    """Remove a metadata using its metadata title."""
     manager = get_manager()
 
     def _remove():
-        metadata, error = manager.remove(metadata_title)
+        _metadata, error = manager.remove(metadata_title)
         if error:
             typer.secho(
                 f'Removing metadata # {metadata_title} failed with "{ERRORS[error]}"',
@@ -174,7 +174,7 @@ def remove(
             raise typer.Exit(1)
         else:
             typer.secho(
-                f"""metadata # {metadata_title}: '{metadata}' was removed""",
+                f"""metadata # {metadata_title}: '{_metadata}' was removed""",
                 fg=typer.colors.GREEN,
             )
 
