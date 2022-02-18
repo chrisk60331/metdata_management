@@ -1,3 +1,4 @@
+"""Manage metadata database."""
 import datetime
 import os
 import pwd

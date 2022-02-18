@@ -1,3 +1,4 @@
+"""Database access module."""
 import configparser
 import json
 from typing import Any, Dict, List, NamedTuple
@@ -9,7 +10,6 @@ from metadata_management import (
     JSON_ERROR,
     SUCCESS,
 )
-
 
 DEFAULT_DB_FILE_PATH = Path.home().joinpath("." + Path.home().stem + "_metadata.json")
 
