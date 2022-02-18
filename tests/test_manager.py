@@ -5,7 +5,12 @@ from freezegun import freeze_time
 
 from metadata_management import SUCCESS
 from metadata_management.manager import Metadata, CurrentMetadata
-from tests.test_cli import test_data1, test_data2, ASSIGNED_DATE, mock_json_file
+from tests.test_cli import (
+    test_data1,
+    test_data2,
+    ASSIGNED_DATE,
+    mock_json_file,
+)
 
 test_data3 = CurrentMetadata(
     metadata={
@@ -41,11 +46,14 @@ test_data4 = CurrentMetadata(
     ],
 )
 @freeze_time(ASSIGNED_DATE, tz_offset=-4)
-def test_add(mock_json_file, metadata_title, metadata_value, comment, expected):
+def test_add(
+    mock_json_file, metadata_title, metadata_value, comment, expected
+):
     metadata_management = Metadata(mock_json_file)
     with patch("metadata_management.manager.CURRENT_USER", "bap"):
         assert (
-            metadata_management.add(metadata_title, metadata_value, comment) == expected
+            metadata_management.add(metadata_title, metadata_value, comment)
+            == expected
         )
     read = metadata_management._db_handler.read_metadata()
     assert len(read.metadata) == 1

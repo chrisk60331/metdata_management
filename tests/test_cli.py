@@ -80,7 +80,9 @@ def test_cli_add(mock_db):
 
 
 def test_cli_reserve_ipv4_network(mock_db):
-    result = runner.invoke(cli.app, ["reserve-ipv4-network", "account01", "24"])
+    result = runner.invoke(
+        cli.app, ["reserve-ipv4-network", "account01", "24"]
+    )
     assert result.exit_code == 0, result
 
 

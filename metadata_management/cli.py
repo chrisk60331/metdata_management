@@ -41,7 +41,9 @@ def init(
         )
         raise typer.Exit(1)
     else:
-        typer.secho(f"The metadata database is {db_path}", fg=typer.colors.GREEN)
+        typer.secho(
+            f"The metadata database is {db_path}", fg=typer.colors.GREEN
+        )
 
 
 def get_manager() -> Metadata:
@@ -92,9 +94,7 @@ def reserve_ipv4_network(
 ) -> None:
     """Allocate a new IPv4 range."""
     manager = get_manager()
-    metadata, error = manager.reserve_ipv4_network(
-        host, network_mask_bits
-    )
+    metadata, error = manager.reserve_ipv4_network(host, network_mask_bits)
     if error:
         typer.secho(
             f'Adding IPv4 network failed with "{ERRORS[error]}"',

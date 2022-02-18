@@ -17,6 +17,7 @@ SUPPORTED_MASK_BITS = [24]
 
 class CurrentMetadata(NamedTuple):
     """Object representing the row currently in memory."""
+
     metadata: Dict[str, Any]
     error: int
 
@@ -27,6 +28,7 @@ class UnsupportedMaskBits(Exception):
 
 class Metadata:
     """An object representing a piece of information."""
+
     def __init__(self, db_path: Path) -> None:
         self._db_handler = DatabaseHandler(db_path)
 
@@ -53,7 +55,9 @@ class Metadata:
         write = self._db_handler.write_metadata(read.metadata)
         return CurrentMetadata({metadata_title: metadata}, write.error)
 
-    def reserve_ipv4_network(self, host: str, mask_bits: int = 24) -> CurrentMetadata:
+    def reserve_ipv4_network(
+        self, host: str, mask_bits: int = 24
+    ) -> CurrentMetadata:
         """Create an IP network reservation and store it in the database."""
         metadata = self.get_metadata()
         last_reserved_network = ip_network(
