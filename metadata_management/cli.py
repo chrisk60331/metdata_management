@@ -41,9 +41,7 @@ def init(
         )
         raise typer.Exit(1)
     else:
-        typer.secho(
-            f"The metadata database is {db_path}", fg=typer.colors.GREEN
-        )
+        typer.secho(f"The metadata database is {db_path}", fg=typer.colors.GREEN)
 
 
 def get_manager() -> Metadata:
@@ -88,22 +86,24 @@ def add(
 
 
 @app.command()
-def allocate_ip_network(
-    network_cidr: List[str] = typer.Argument(...),
-    description: List[str] = typer.Argument(...),
+def assign_ipv4_network(
+    host: str = typer.Argument(...),
+    network_mask_bits: int = typer.Argument(...),
 ) -> None:
-    """Allocate a new IP range with a DESCRIPTION."""
+    """Allocate a new IPv4 range."""
     manager = get_manager()
-    metadata, error = manager.add(description, 0)
+    metadata, error = manager.assign_ipv4_network(
+        host + "#ipv4address", network_mask_bits
+    )
     if error:
         typer.secho(
-            f'Adding metadata failed with "{ERRORS[error]}"',
+            f'Adding IPv4 network failed with "{ERRORS[error]}"',
             fg=typer.colors.RED,
         )
         raise typer.Exit(1)
     else:
         typer.secho(
-            f"""metadata: "{metadata['Description']}" was added """,
+            f"""metadata: "{metadata}" was added """,
             fg=typer.colors.GREEN,
         )
 
@@ -120,13 +120,14 @@ def list_all() -> None:
         )
         raise typer.Exit()
     typer.secho("\nmetadata list:\n", fg=typer.colors.BLUE, bold=True)
-    columns = ("ID.  ", "some", "thing", "else")
-    headers = "".join(columns)
+    columns = ("Value", "Content", "AssignedBy", "AssignedDateUTC", "inactive")
+    headers = " ".join(columns)
     typer.secho(headers, fg=typer.colors.BLUE, bold=True)
     typer.secho("-" * len(headers), fg=typer.colors.BLUE)
-    for _id, metadata in enumerate(metadata, 1):
+    for _id in metadata.keys():
+        output = [_id] + [str(_key) for _key in metadata[_id].values()]
         typer.secho(
-            f"{_id}{(len(columns[0]) - len(str(_id))) * ' '}",
+            " ".join(output),
             fg=typer.colors.BLUE,
         )
     typer.secho("-" * len(headers) + "\n", fg=typer.colors.BLUE)

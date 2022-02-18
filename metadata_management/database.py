@@ -11,9 +11,7 @@ from metadata_management import (
 )
 
 
-DEFAULT_DB_FILE_PATH = Path.home().joinpath(
-    "." + Path.home().stem + "_metadata.json"
-)
+DEFAULT_DB_FILE_PATH = Path.home().joinpath("." + Path.home().stem + "_metadata.json")
 
 
 def get_database_path(config_file: Path) -> Path:

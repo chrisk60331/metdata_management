@@ -10,11 +10,16 @@ from typing import Any, Dict, NamedTuple
 
 LAST_ASSIGNED_NETWORK = "last_assigned_network"
 CURRENT_USER = pwd.getpwuid(os.getuid())[0]
+DEFAULT_BACKEND_NETWORK = "10.0.0.0/24"
 
 
 class CurrentMetadata(NamedTuple):
     metadata: Dict[str, Any]
     error: int
+
+
+class UnsupportedMaskBits(Exception):
+    """Exception class for when an unsupported mask bit is used."""
 
 
 class Metadata:
@@ -44,13 +49,27 @@ class Metadata:
         write = self._db_handler.write_metadata(read.metadata)
         return CurrentMetadata({metadata_title: metadata}, write.error)
 
-    def assign_ip_network(
-        self, host: str, size: str = "/24"
-    ) -> CurrentMetadata:
+    def assign_ipv4_network(self, host: str, mask_bits: int = 24) -> CurrentMetadata:
         metadata = self.get_metadata()
-        last_assigned_network = ip_network(metadata.get(LAST_ASSIGNED_NETWORK))
-        next_network = last_assigned_network.broadcast_address + size
-        return self.add(host, next_network, "auto-assigned IP")
+        last_assigned_network = ip_network(
+            metadata.get(LAST_ASSIGNED_NETWORK, {}).get(
+                "Value", DEFAULT_BACKEND_NETWORK
+            )
+        )
+        if not mask_bits == 24:
+            raise UnsupportedMaskBits
+        last_network_super = last_assigned_network.supernet(prefixlen_diff=8)
+        available_networks = last_network_super.subnets(prefixlen_diff=8)
+        next_network = str(
+            [
+                network
+                for network in available_networks
+                if network > last_assigned_network
+            ][0]
+        )
+        self.add(LAST_ASSIGNED_NETWORK, next_network, "auto-assigned IP")
+        add_host_result = self.add(host, next_network, "auto-assigned IP")
+        return add_host_result
 
     def set_inactive(self, metadata_title: str) -> CurrentMetadata:
         """Set a metadata as inactive."""
