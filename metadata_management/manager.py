@@ -9,10 +9,12 @@ from metadata_management import DB_READ_ERROR, ID_ERROR
 from metadata_management.database import DatabaseHandler
 from typing import Any, Dict, NamedTuple
 
+from metadata_management.ipam import IPAM, Scope, Pool
+
 LAST_RESERVED_NETWORK = "last_reserved_network"
 CURRENT_USER = pwd.getpwuid(os.getuid())[0]
 DEFAULT_BACKEND_IPV4_NETWORK = "10.0.0.0/24"
-SUPPORTED_MASK_BITS = [24]
+IPAM_NAME = "IPAM-us-west-1"
 
 
 class CurrentMetadata(NamedTuple):
@@ -20,10 +22,6 @@ class CurrentMetadata(NamedTuple):
 
     metadata: Dict[str, Any]
     error: int
-
-
-class UnsupportedMaskBits(Exception):
-    """Exception class for when an unsupported mask bit is used."""
 
 
 class Metadata:
@@ -59,25 +57,11 @@ class Metadata:
         self, host: str, mask_bits: int = 24
     ) -> CurrentMetadata:
         """Create an IP network reservation and store it in the database."""
-        metadata = self.get_metadata()
-        last_reserved_network = ip_network(
-            metadata.get(LAST_RESERVED_NETWORK, {}).get(
-                "Value", DEFAULT_BACKEND_IPV4_NETWORK
-            )
-        )
-        if mask_bits not in SUPPORTED_MASK_BITS:
-            raise UnsupportedMaskBits
-        last_network_super = last_reserved_network.supernet(prefixlen_diff=8)
-        available_networks = last_network_super.subnets(prefixlen_diff=8)
-        next_network = str(
-            [
-                network
-                for network in available_networks
-                if network > last_reserved_network
-            ][0]
-        )
-        self.add(LAST_RESERVED_NETWORK, next_network, "auto-reserved IP")
-        add_host_result = self.add(host, next_network, "auto-reserved IP")
+        ipam = IPAM(name=IPAM_NAME)
+        scope = Scope(ipam.IpamId)
+        pool = Pool(scope.IpamScopeId)
+        self.add(LAST_RESERVED_NETWORK, pool.Cidr, "auto-reserved IP")
+        add_host_result = self.add(host, pool.Cidr, "auto-reserved IP")
         return add_host_result
 
     def set_inactive(self, metadata_title: str) -> CurrentMetadata:
