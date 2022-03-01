@@ -2,19 +2,16 @@
 import datetime
 import os
 import pwd
-from ipaddress import ip_network
 from pathlib import Path
+
+from typing import Any, Dict, NamedTuple
 
 from metadata_management import DB_READ_ERROR, ID_ERROR
 from metadata_management.database import DatabaseHandler
-from typing import Any, Dict, NamedTuple
-
 from metadata_management.ipam import IPAM, Scope, Pool
 
-LAST_RESERVED_NETWORK = "last_reserved_network"
 CURRENT_USER = pwd.getpwuid(os.getuid())[0]
 DEFAULT_BACKEND_IPV4_NETWORK = "10.0.0.0/24"
-IPAM_NAME = "IPAM-us-west-1"
 
 
 class CurrentMetadata(NamedTuple):
@@ -54,13 +51,18 @@ class Metadata:
         return CurrentMetadata({metadata_title: metadata}, write.error)
 
     def reserve_ipv4_network(
-        self, host: str, mask_bits: int = 24
+        self,
+        host: str,
+        ipam_name: str = None,
+        mask_bits: int = 24,
+        pool_name: str = None,
+        region_name=None,
+        dry_run: bool = True,
     ) -> CurrentMetadata:
         """Create an IP network reservation and store it in the database."""
-        ipam = IPAM(name=IPAM_NAME)
-        scope = Scope(ipam.IpamId)
-        pool = Pool(scope.IpamScopeId)
-        self.add(LAST_RESERVED_NETWORK, pool.Cidr, "auto-reserved IP")
+        ipam = IPAM(dry_run=dry_run).from_existing(ipam_name)
+        pool = Pool(region_name=region_name).from_existing(ipam.pool_name)
+
         add_host_result = self.add(host, pool.Cidr, "auto-reserved IP")
         return add_host_result
 

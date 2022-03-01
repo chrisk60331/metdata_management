@@ -1,4 +1,6 @@
 import os
+from unittest import mock
+from unittest.mock import Mock
 
 from typer.testing import CliRunner
 import json
@@ -80,9 +82,25 @@ def test_cli_add(mock_db):
 
 
 def test_cli_reserve_ipv4_network(mock_db):
-    result = runner.invoke(
-        cli.app, ["reserve-ipv4-network", "account01", "24"]
-    )
+    with mock.patch(
+        "metadata_management.manager.IPAM"
+    ) as mock_ipam, mock.patch(
+        "metadata_management.manager.Scope"
+    ), mock.patch(
+        "metadata_management.manager.Pool",
+        Mock(
+            return_value=Mock(
+                from_existing=Mock(side_effect=[
+                    Mock(Cidr="10.0.1.0/24"),
+                    Mock(Cidr="10.0.2.0/24"),
+                ])
+            )
+        ),
+    ):
+        mock_ipam.return_value.from_existing.return_value = Mock()
+        result = runner.invoke(
+            cli.app, ["reserve-ipv4-network", "account01", "24", "foo_pam"]
+        )
     assert result.exit_code == 0, result
 
 

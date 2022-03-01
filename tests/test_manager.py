@@ -1,7 +1,9 @@
-from unittest.mock import patch
+from unittest import mock
+from unittest.mock import patch, Mock
 
 import pytest
 from freezegun import freeze_time
+from moto import mock_ec2
 
 from metadata_management import SUCCESS
 from metadata_management.manager import Metadata, CurrentMetadata
@@ -66,12 +68,27 @@ def test_add(
     ],
 )
 @freeze_time(ASSIGNED_DATE, tz_offset=-4)
+@mock_ec2
 def test_reserve_ipv4_network(mock_json_file, metadata_title, expected):
     metadata_management = Metadata(mock_json_file)
-    with patch("metadata_management.manager.CURRENT_USER", "bap"):
-        actual = metadata_management.reserve_ipv4_network(metadata_title, 24)
+    with mock.patch("metadata_management.manager.IPAM"), mock.patch(
+        "metadata_management.manager.Scope"
+    ), mock.patch(
+        "metadata_management.manager.Pool",
+        Mock(
+            return_value=Mock(
+                from_existing=Mock(side_effect=[
+                    Mock(Cidr="10.0.1.0/24"),
+                    Mock(Cidr="10.0.2.0/24"),
+                ])
+            )
+        ),
+    ), mock.patch(
+        "metadata_management.manager.CURRENT_USER", "bap"
+    ):
+        actual = metadata_management.reserve_ipv4_network(
+            host=metadata_title, mask_bits=24, pool_name="foo"
+        )
         assert actual == expected
         read = metadata_management._db_handler.read_metadata()
-        assert len(read.metadata) == 2
-        actual = metadata_management.reserve_ipv4_network("account04", 24)
-        assert actual == test_data4
+        assert len(read.metadata) == 1

@@ -3,3 +3,4 @@ pytest==7.0.1
 typer==0.4.0
 
 boto3~=1.21.4
+moto~=3.0.5
