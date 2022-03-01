@@ -77,17 +77,20 @@ def test_reserve_ipv4_network(mock_json_file, metadata_title, expected):
         "metadata_management.manager.Pool",
         Mock(
             return_value=Mock(
-                from_existing=Mock(side_effect=[
-                    Mock(Cidr="10.0.1.0/24"),
-                    Mock(Cidr="10.0.2.0/24"),
-                ])
+                from_existing=Mock(
+                    side_effect=[
+                        Mock(Cidr="10.0.1.0/24"),
+                        Mock(Cidr="10.0.2.0/24"),
+                    ]
+                )
             )
         ),
     ), mock.patch(
         "metadata_management.manager.CURRENT_USER", "bap"
     ):
         actual = metadata_management.reserve_ipv4_network(
-            host=metadata_title, mask_bits=24, 
+            host=metadata_title,
+            mask_bits=24,
         )
         assert actual == expected
         read = metadata_management._db_handler.read_metadata()

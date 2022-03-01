@@ -4,6 +4,7 @@ from metadata_management.aws import AWSAPIOperation
 
 class IPAM(AWSAPIOperation):
     """Represent an empty IPAM config."""
+
     def __init__(self, region_name: str = None, dry_run: bool = True):
         super().__init__(region_name, dry_run)
         self.name = None
@@ -51,6 +52,7 @@ class IPAM(AWSAPIOperation):
 
 class Scope(AWSAPIOperation):
     """Represent an empty IPAM scope config."""
+
     def __init__(self, ipam_id, region_name):
         super().__init__(region_name)
         response = self.client.create_ipam_scope(
@@ -67,6 +69,7 @@ class Scope(AWSAPIOperation):
 
 class Pool(AWSAPIOperation):
     """Represent an IPAM IP pool."""
+
     def __init__(self, region_name: str):
         super().__init__(region_name)
         self.ipam_pool_id = None

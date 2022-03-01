@@ -90,10 +90,12 @@ def test_cli_reserve_ipv4_network(mock_db):
         "metadata_management.manager.Pool",
         Mock(
             return_value=Mock(
-                from_existing=Mock(side_effect=[
-                    Mock(Cidr="10.0.1.0/24"),
-                    Mock(Cidr="10.0.2.0/24"),
-                ])
+                from_existing=Mock(
+                    side_effect=[
+                        Mock(Cidr="10.0.1.0/24"),
+                        Mock(Cidr="10.0.2.0/24"),
+                    ]
+                )
             )
         ),
     ):
