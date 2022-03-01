@@ -26,7 +26,7 @@ def test_ipam_initializes():
 
 def test_ipam_from_new():
     with mock.patch(
-        "metadata_management.ipam.boto3",
+        "metadata_management.aws.boto3",
         Mock(
             client=Mock(return_value=Mock(create_ipam=Mock(return_value={})))
         ),
@@ -42,7 +42,7 @@ def test_ipam_from_new():
 
 def test_ipam_from_existing():
     with mock.patch(
-        "metadata_management.ipam.boto3",
+        "metadata_management.aws.boto3",
         Mock(
             client=Mock(return_value=Mock(create_ipam=Mock(return_value={})))
         ),

@@ -87,7 +87,7 @@ def test_reserve_ipv4_network(mock_json_file, metadata_title, expected):
         "metadata_management.manager.CURRENT_USER", "bap"
     ):
         actual = metadata_management.reserve_ipv4_network(
-            host=metadata_title, mask_bits=24, pool_name="foo"
+            host=metadata_title, mask_bits=24, 
         )
         assert actual == expected
         read = metadata_management._db_handler.read_metadata()

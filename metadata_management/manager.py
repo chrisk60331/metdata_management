@@ -55,14 +55,13 @@ class Metadata:
         host: str,
         ipam_name: str = None,
         mask_bits: int = 24,
-        pool_name: str = None,
         region_name=None,
         dry_run: bool = True,
     ) -> CurrentMetadata:
         """Create an IP network reservation and store it in the database."""
         ipam = IPAM(dry_run=dry_run).from_existing(ipam_name)
         pool = Pool(region_name=region_name).from_existing(ipam.pool_name)
-
+        pool.allocate_cidr(mask_bits)
         add_host_result = self.add(host, pool.Cidr, "auto-reserved IP")
         return add_host_result
 

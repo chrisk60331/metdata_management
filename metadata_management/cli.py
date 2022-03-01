@@ -90,7 +90,7 @@ def add(
 @app.command()
 def reserve_ipv4_network(
     host: str = typer.Argument(...),
-    network_mask_bits: int = typer.Argument(...),
+    network_mask_bits: int = typer.Argument(default=24),
     ipam_name: str = typer.Argument(...),
 ) -> None:
     """Allocate a new IPv4 range."""
