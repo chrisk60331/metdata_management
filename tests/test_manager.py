@@ -16,7 +16,7 @@ from tests.test_cli import (
 
 test_data3 = CurrentMetadata(
     metadata={
-        "account03": {
+        "ip_reservation#account03": {
             "Value": "10.0.1.0/24",
             "Comment": "auto-reserved IP",
             "AssignedBy": "bap",

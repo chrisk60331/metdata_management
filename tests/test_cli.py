@@ -101,7 +101,7 @@ def test_cli_reserve_ipv4_network(mock_db):
     ):
         mock_ipam.return_value.from_existing.return_value = Mock()
         result = runner.invoke(
-            cli.app, ["reserve-ipv4-network", "account01", "24", "foo_pam"]
+            cli.app, ["reserve-ipv4-network", "account01", "24", "False"]
         )
     assert result.exit_code == 0, result
 

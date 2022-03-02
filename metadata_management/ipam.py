@@ -10,6 +10,7 @@ class IPAM(AWSAPIOperation):
         self.name = None
         self.ipam_id = None
         self.pool_name = None
+        self.scope_id = None
 
     def from_new(self):
         """Create a new IPAM instance."""
@@ -28,16 +29,10 @@ class IPAM(AWSAPIOperation):
         self.name = name
         response = self.client.describe_ipams(
             DryRun=self.dry_run,
-            Filters=[
-                {
-                    "Name": "string",
-                    "Values": [
-                        str(self.name),
-                    ],
-                },
-            ],
+            IpamIds=[name]
         )
         self.ipam_id = response.get("IpamId")
+        self.scope_id = response.get("PrivateDefaultScopeId")
         return self
 
     def delete(self):
@@ -53,8 +48,8 @@ class IPAM(AWSAPIOperation):
 class Scope(AWSAPIOperation):
     """Represent an empty IPAM scope config."""
 
-    def __init__(self, ipam_id, region_name):
-        super().__init__(region_name)
+    def __init__(self, ipam_id, region_name, dry_run: bool = True):
+        super().__init__(region_name, dry_run)
         response = self.client.create_ipam_scope(
             DryRun=self.dry_run, IpamId=ipam_id
         )
@@ -70,8 +65,8 @@ class Scope(AWSAPIOperation):
 class Pool(AWSAPIOperation):
     """Represent an IPAM IP pool."""
 
-    def __init__(self, region_name: str):
-        super().__init__(region_name)
+    def __init__(self, region_name: str, dry_run: bool = True):
+        super().__init__(region_name, dry_run)
         self.ipam_pool_id = None
         self.Cidr = None
 
@@ -86,13 +81,12 @@ class Pool(AWSAPIOperation):
         self.ipam_pool_id = response.get("IpamPoolId")
         return self
 
-    def from_existing(self, pool_id):
+    def from_existing(self):
         """Use an existing pool on an existing scope."""
-        response = self.client.get_ipam_pool_allocations(
+        response = self.client.describe_ipam_pools(
             DryRun=self.dry_run,
-            IpamPoolId=pool_id,
         )
-        self.ipam_pool_id = response.get("IpamPoolId")
+        self.ipam_pool_id = response.get("IpamPools")[0].get("IpamPoolId")
         return self
 
     def allocate_cidr(self, netmask_length):
@@ -102,7 +96,7 @@ class Pool(AWSAPIOperation):
             IpamPoolId=self.ipam_pool_id,
             NetmaskLength=netmask_length,
         )
-        self.Cidr = response.get("Cidr")
+        self.Cidr = response.get("IpamPoolAllocation").get("Cidr")
         return self
 
     def delete(self):

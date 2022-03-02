@@ -91,12 +91,12 @@ def add(
 def reserve_ipv4_network(
     host: str = typer.Argument(...),
     network_mask_bits: int = typer.Argument(default=24),
-    ipam_name: str = typer.Argument(...),
+    dry_run: bool = typer.Argument(...),
 ) -> None:
     """Allocate a new IPv4 range."""
     manager = get_manager()
     metadata, error = manager.reserve_ipv4_network(
-        host, ipam_name=ipam_name, mask_bits=network_mask_bits
+        host, mask_bits=network_mask_bits, dry_run=dry_run
     )
     if error:
         typer.secho(

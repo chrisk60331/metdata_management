@@ -56,8 +56,10 @@ class DatabaseHandler:
 
     def write_metadata(self, metadata: Dict[str, Any]) -> DBResponse:
         try:
+            existing_rows = self.read_metadata().metadata
+            existing_rows.update(metadata)
             with self._db_path.open("w") as db:
-                json.dump(metadata, db, indent=4)
+                json.dump(existing_rows, db, indent=4)
             return DBResponse(metadata, SUCCESS)
         except OSError:  # Catch file IO problems
             return DBResponse(metadata, DB_WRITE_ERROR)

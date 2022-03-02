@@ -11,7 +11,8 @@ from metadata_management.database import DatabaseHandler
 from metadata_management.ipam import IPAM, Scope, Pool
 
 CURRENT_USER = pwd.getpwuid(os.getuid())[0]
-DEFAULT_BACKEND_IPV4_NETWORK = "10.0.0.0/24"
+KEY_DELIMITER = "#"
+IP_RESERVATION = "ip_reservation"
 
 
 class CurrentMetadata(NamedTuple):
@@ -53,16 +54,15 @@ class Metadata:
     def reserve_ipv4_network(
         self,
         host: str,
-        ipam_name: str = None,
         mask_bits: int = 24,
         region_name=None,
         dry_run: bool = True,
     ) -> CurrentMetadata:
         """Create an IP network reservation and store it in the database."""
-        ipam = IPAM(dry_run=dry_run).from_existing(ipam_name)
-        pool = Pool(region_name=region_name).from_existing(ipam.pool_name)
+        pool = Pool(dry_run=dry_run, region_name=region_name).from_existing()
         pool.allocate_cidr(mask_bits)
-        add_host_result = self.add(host, pool.Cidr, "auto-reserved IP")
+        reservation_key = KEY_DELIMITER.join([IP_RESERVATION, host])
+        add_host_result = self.add(reservation_key, pool.Cidr, "auto-reserved IP")
         return add_host_result
 
     def set_inactive(self, metadata_title: str) -> CurrentMetadata:

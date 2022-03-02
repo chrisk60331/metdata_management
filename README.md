@@ -14,8 +14,8 @@ pip install -r requirements.txt
 ## Usage
 ```
 python -m metadata_management init
-python -m metadata_management add --metadata-title account-owner --metadata-value user123 --comment "transfer ownership"
-python -m metadata_management assign-ipv4-network --host Account_id_123 --network-mask-bits 24 --ipam-name AWS-IPAM-INSTANCE-NAME
+python -m metadata_management add account-owner user123 "transfer ownership"
+python -m metadata_management assign-ipv4-network Account_id_123 24 
 python -m metadata_management list-all
 ```
 ## Testing
