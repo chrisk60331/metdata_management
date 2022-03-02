@@ -13,10 +13,25 @@ pip install -r requirements.txt
 ```
 ## Usage
 ```
-python -m metadata_management init
-python -m metadata_management add account-owner user123 "transfer ownership"
-python -m metadata_management assign-ipv4-network Account_id_123 24 
-python -m metadata_management list-all
+Usage: metadata_management [OPTIONS] COMMAND [ARGS]...
+
+Options:
+  -v, --version                   Show the application's version and exit.
+  --install-completion [bash|zsh|fish|powershell|pwsh]
+                                  Install completion for the specified shell.
+  --show-completion [bash|zsh|fish|powershell|pwsh]
+                                  Show completion for the specified shell, to
+                                  copy it or customize the installation.
+  --help                          Show this message and exit.
+
+Commands:
+  add                   Add a new metadata with a comment.
+  init                  Initialize the metadata database.
+  list                  List all metadata.
+  remove                Remove a metadata using its metadata title.
+  reserve-ipv4-network  Allocate a new IPv4 range.
+  set-inactive          Complete a metadata by setting it as inactive...
+
 ```
 ## Testing
 ```PYTHONPATH=. pytest tests``` 
