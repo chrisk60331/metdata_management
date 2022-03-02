@@ -60,7 +60,7 @@ class Metadata:
     ) -> CurrentMetadata:
         """Create an IP network reservation and store it in the database."""
         pool = Pool(dry_run=dry_run, region_name=region_name).from_existing()
-        pool.allocate_cidr(mask_bits)
+        pool.allocate_cidr(mask_bits, host)
         reservation_key = KEY_DELIMITER.join([IP_RESERVATION, host])
         add_host_result = self.add(reservation_key, pool.Cidr, "auto-reserved IP")
         return add_host_result

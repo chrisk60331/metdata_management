@@ -89,12 +89,13 @@ class Pool(AWSAPIOperation):
         self.ipam_pool_id = response.get("IpamPools")[0].get("IpamPoolId")
         return self
 
-    def allocate_cidr(self, netmask_length):
+    def allocate_cidr(self, netmask_length, host=None):
         """Reserve the next available IP CIDR block of the requested size."""
         response = self.client.allocate_ipam_pool_cidr(
             DryRun=self.dry_run,
             IpamPoolId=self.ipam_pool_id,
             NetmaskLength=netmask_length,
+            Description=host,
         )
         self.Cidr = response.get("IpamPoolAllocation").get("Cidr")
         return self
