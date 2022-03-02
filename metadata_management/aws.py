@@ -1,4 +1,4 @@
-"""A module for interacting AWS API."""
+"""A module for interacting with AWS API."""
 import boto3
 
 
